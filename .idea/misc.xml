@@ -38,19 +38,8 @@
       </profile-state>
     </entry>
   </component>
-  <component name="ProjectRootManager" version="2" default="true">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
-  </component>
-  <component name="SbtLocalSettings">
-    <option name="modificationStamps">
-      <map>
-        <entry key="$PROJECT_DIR$" value="1489931850000" />
-        <entry key="$PROJECT_DIR$/../../../example" value="1464692444000" />
-      </map>
-    </option>
-    <option name="externalProjectsViewState">
-      <projects_view />
-    </option>
   </component>
   <component name="masterDetails">
     <states>
