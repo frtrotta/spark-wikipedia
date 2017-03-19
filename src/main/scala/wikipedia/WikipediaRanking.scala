@@ -19,7 +19,7 @@ object WikipediaRanking {
   // Hint: use a combination of `sc.textFile`, `WikipediaData.filePath` and `WikipediaData.parse`
   val wikiRdd: RDD[WikipediaArticle] = sc.textFile(WikipediaData.filePath).map(WikipediaData.parse(_))
 
-  def containsExactWord(text: String, word: String): Boolean = text.contains(word + " ") // This is more efficient than text.split(" ").contains(word)
+  def containsExactWord(text: String, word: String): Boolean = text.split(" ").contains(word)
 
   /** Returns the number of articles on which the language `lang` occurs.
    *  Hint1: consider using method `aggregate` on RDD[T].
