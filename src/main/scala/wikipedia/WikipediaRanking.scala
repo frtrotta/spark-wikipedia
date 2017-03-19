@@ -19,6 +19,8 @@ object WikipediaRanking {
   // Hint: use a combination of `sc.textFile`, `WikipediaData.filePath` and `WikipediaData.parse`
   val wikiRdd: RDD[WikipediaArticle] = sc.textFile(WikipediaData.filePath).map(WikipediaData.parse(_))
 
+  def containsExactWord(text: String, word: String): Boolean = text.contains(word + " ")
+
   /** Returns the number of articles on which the language `lang` occurs.
    *  Hint1: consider using method `aggregate` on RDD[T].
    *  Hint2: should you count the "Java" language when you see "JavaScript"?
@@ -27,7 +29,7 @@ object WikipediaRanking {
    */
   def occurrencesOfLang(lang: String, rdd: RDD[WikipediaArticle]): Int =
     rdd.aggregate(0)(
-      (c, wa) => if (wa.text.split(" ").contains(lang)) c+1 else c ,
+      (c, wa) => if (containsExactWord(wa.text, lang)) c+1 else c ,
       _+_
     )
 
@@ -50,7 +52,7 @@ object WikipediaRanking {
    // TODO sc.parallelize(langs.map((l) => (l, rdd.filter(_.text.contains(l + " ")).collect().toList)))
   {
     def makeInvertedIndexEntries(wa: WikipediaArticle): List[(String, WikipediaArticle)] =
-      langs.withFilter((lang) => wa.text.split(" ").contains(lang)).map((lang) => (lang, wa))
+      langs.withFilter((lang) => containsExactWord(wa.text, lang)).map((lang) => (lang, wa))
 
     rdd.flatMap((wa) => makeInvertedIndexEntries(wa)).groupByKey()
   }
@@ -75,7 +77,7 @@ object WikipediaRanking {
   def rankLangsReduceByKey(langs: List[String], rdd: RDD[WikipediaArticle]): List[(String, Int)] =
   {
     def giovanni(wa: WikipediaArticle): List[(String, Int)] =
-      langs.map((lang) => (lang, if(wa.text.split(" ").contains(lang)) 1 else 0))
+      langs.map((lang) => (lang, if(containsExactWord(wa.text, lang)) 1 else 0))
 
     rdd.flatMap((wa) => giovanni(wa)).reduceByKey(_ + _).collect().sortBy(_._2)(Ordering[Int].reverse).toList
   }
