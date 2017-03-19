@@ -19,7 +19,7 @@ object WikipediaRanking {
   // Hint: use a combination of `sc.textFile`, `WikipediaData.filePath` and `WikipediaData.parse`
   val wikiRdd: RDD[WikipediaArticle] = sc.textFile(WikipediaData.filePath).map(WikipediaData.parse(_))
 
-  def containsExactWord(text: String, word: String): Boolean = text.contains(word + " ")
+  def containsExactWord(text: String, word: String): Boolean = text.contains(word + " ") // This is more efficient than text.split(" ").contains(word)
 
   /** Returns the number of articles on which the language `lang` occurs.
    *  Hint1: consider using method `aggregate` on RDD[T].
@@ -43,13 +43,16 @@ object WikipediaRanking {
    */
   def rankLangs(langs: List[String], rdd: RDD[WikipediaArticle]): List[(String, Int)] =
     langs.map((s) => (s, occurrencesOfLang(s, rdd))).sortBy(_._2)(Ordering[Int].reverse)
-  // TODO How could I use flatMap and groupByKey here???
+  /* The assignment at https://www.coursera.org/learn/scala-spark-big-data/programming/QcWcs/wikipedia
+   * suggests to use flatMap and groupByKey functions here: how is it possible?
+   *
+   * To me those functions appear to fit the inverted index case.
+   */
 
   /* Compute an inverted index of the set of articles, mapping each language
    * to the Wikipedia pages in which it occurs.
    */
   def makeIndex(langs: List[String], rdd: RDD[WikipediaArticle]): RDD[(String, Iterable[WikipediaArticle])] =
-   // TODO sc.parallelize(langs.map((l) => (l, rdd.filter(_.text.contains(l + " ")).collect().toList)))
   {
     def makeInvertedIndexEntries(wa: WikipediaArticle): List[(String, WikipediaArticle)] =
       langs.withFilter((lang) => containsExactWord(wa.text, lang)).map((lang) => (lang, wa))
@@ -64,7 +67,6 @@ object WikipediaRanking {
    *   several seconds.
    */
   def rankLangsUsingIndex(index: RDD[(String, Iterable[WikipediaArticle])]): List[(String, Int)] =
-    // TODO index.map{ case (s, aa) => (s, aa.size)}.collect().toList.sortBy(_._2)(Ordering[Int].reverse)
   index.mapValues(_.size).collect().sortBy(_._2)(Ordering[Int].reverse).toList
 
   /* (3) Use `reduceByKey` so that the computation of the index and the ranking are combined.
